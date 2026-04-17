@@ -1,0 +1,1945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PixelStack Technologies — Modern Web Design & Scalable Applications</title>
+  <meta name="description" content="PixelStack Technologies builds high-performance websites, scalable web applications, and secure digital platforms for startups and enterprises." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DESIGN TOKENS & RESETS
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg-0:       #04040a;
+      --bg-1:       #080818;
+      --bg-2:       #0d0d24;
+      --bg-glass:   rgba(255,255,255,0.035);
+      --border:     rgba(255,255,255,0.08);
+      --border-hi:  rgba(110,80,255,0.35);
+      --txt-1:      #f0eeff;
+      --txt-2:      #9b98c0;
+      --txt-3:      #5e5b7a;
+      --accent-1:   #7c5cfc;
+      --accent-2:   #4fc3f7;
+      --accent-3:   #f06fff;
+      --glow-1:     rgba(124,92,252,0.55);
+      --glow-2:     rgba(79,195,247,0.45);
+      --glow-3:     rgba(240,111,255,0.40);
+      --radius-sm:  10px;
+      --radius-md:  18px;
+      --radius-lg:  28px;
+      --transition: 0.38s cubic-bezier(0.22,1,0.36,1);
+      --font-head:  'Syne', sans-serif;
+      --font-body:  'DM Sans', sans-serif;
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      background: var(--bg-0);
+      color: var(--txt-1);
+      font-family: var(--font-body);
+      line-height: 1.65;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    ul { list-style: none; }
+    button { cursor: pointer; border: none; background: none; font: inherit; }
+
+    /* ============================================================
+       LOADING SCREEN
+    ============================================================ */
+    #loader {
+      position: fixed; inset: 0;
+      background: var(--bg-0);
+      z-index: 9999;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 24px;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+    .loader-logo {
+      font-family: var(--font-head);
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2), var(--accent-3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.02em;
+    }
+    .loader-bar-wrap {
+      width: 220px; height: 3px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .loader-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+      border-radius: 99px;
+      animation: loadbar 1.6s ease forwards;
+    }
+    @keyframes loadbar { to { width: 100%; } }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg-0); }
+    ::-webkit-scrollbar-thumb { background: var(--accent-1); border-radius: 99px; }
+
+    /* ============================================================
+       NOISE OVERLAY
+    ============================================================ */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 0; opacity: 0.4;
+    }
+
+    /* ============================================================
+       UTILITY
+    ============================================================ */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; position: relative; z-index: 1; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--accent-1);
+      margin-bottom: 16px;
+    }
+    .section-label::before {
+      content: '';
+      display: block; width: 22px; height: 2px;
+      background: var(--accent-1); border-radius: 2px;
+    }
+    .section-title {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--txt-1);
+      margin-bottom: 16px;
+    }
+    .section-sub {
+      font-size: 1.05rem; color: var(--txt-2);
+      max-width: 560px; line-height: 1.7;
+    }
+    .grad-text {
+      background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 60%, var(--accent-3) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Glass card */
+    .glass {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-radius: var(--radius-md);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 30px;
+      border-radius: 99px;
+      font-family: var(--font-body);
+      font-size: 0.95rem; font-weight: 500;
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+    }
+    .btn::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: rgba(255,255,255,0.07);
+      opacity: 0; transition: var(--transition);
+      border-radius: inherit;
+    }
+    .btn:hover::after { opacity: 1; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-1), #5b3be8);
+      color: #fff;
+      box-shadow: 0 8px 32px var(--glow-1);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px var(--glow-1); }
+    .btn-ghost {
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      color: var(--txt-1);
+      backdrop-filter: blur(8px);
+    }
+    .btn-ghost:hover { border-color: var(--accent-1); transform: translateY(-2px); }
+
+    /* ============================================================
+       NAVBAR
+    ============================================================ */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: all 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(4,4,10,0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 0;
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-family: var(--font-head);
+      font-size: 1.4rem; font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .nav-links {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .nav-links a {
+      padding: 8px 16px;
+      font-size: 0.9rem; font-weight: 500;
+      color: var(--txt-2);
+      border-radius: 99px;
+      transition: var(--transition);
+    }
+    .nav-links a:hover,
+    .nav-links a.active { color: var(--txt-1); background: var(--bg-glass); }
+    .nav-cta { margin-left: 8px; padding: 10px 22px !important; }
+
+    /* Hamburger */
+    .nav-toggle {
+      display: none;
+      width: 36px; height: 36px;
+      flex-direction: column; justify-content: center; gap: 5px;
+      cursor: pointer;
+    }
+    .nav-toggle span {
+      display: block; height: 2px; width: 100%;
+      background: var(--txt-1); border-radius: 2px;
+      transition: var(--transition);
+    }
+    .nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .nav-toggle.open span:nth-child(2) { opacity: 0; }
+    .nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    /* Mobile menu */
+    .mobile-menu {
+      display: none;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(4,4,10,0.97);
+      backdrop-filter: blur(24px);
+      z-index: 999;
+      flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--font-head);
+      font-size: 2rem; font-weight: 700;
+      color: var(--txt-2);
+      transition: color 0.2s;
+    }
+    .mobile-menu a:hover { color: var(--txt-1); }
+
+    /* ============================================================
+       PAGE MANAGEMENT
+    ============================================================ */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ============================================================
+       HOME — HERO
+    ============================================================ */
+    .hero {
+      min-height: 100vh;
+      display: flex; align-items: center;
+      position: relative; overflow: hidden;
+      padding-top: 100px;
+    }
+
+    /* Animated mesh background */
+    .hero-bg {
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(90px); opacity: 0.18;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+    .orb-1 { width: 600px; height: 600px; background: var(--accent-1); top: -150px; left: -150px; animation-delay: 0s; }
+    .orb-2 { width: 500px; height: 500px; background: var(--accent-2); bottom: -100px; right: -100px; animation-delay: -3s; }
+    .orb-3 { width: 400px; height: 400px; background: var(--accent-3); top: 40%; left: 50%; transform: translate(-50%,-50%); animation-delay: -6s; }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(20px, -30px) scale(1.05); }
+      66% { transform: translate(-15px, 20px) scale(0.95); }
+    }
+
+    /* Grid lines */
+    .hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(124,92,252,0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,92,252,0.05) 1px, transparent 1px);
+      background-size: 80px 80px;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-content { position: relative; z-index: 1; }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 8px 16px;
+      border-radius: 99px;
+      background: rgba(124,92,252,0.1);
+      border: 1px solid rgba(124,92,252,0.3);
+      font-size: 0.8rem; font-weight: 500;
+      color: var(--accent-1);
+      margin-bottom: 28px;
+      animation: fadeUp 0.8s 0.2s both;
+    }
+    .hero-badge::before {
+      content: '';
+      width: 8px; height: 8px;
+      background: var(--accent-1);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.3); }
+    }
+
+    .hero-title {
+      font-family: var(--font-head);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      margin-bottom: 24px;
+      animation: fadeUp 0.8s 0.35s both;
+    }
+    .hero-sub {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      color: var(--txt-2); max-width: 580px;
+      line-height: 1.75;
+      margin-bottom: 40px;
+      animation: fadeUp 0.8s 0.5s both;
+    }
+    .hero-btns {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.65s both;
+    }
+
+    /* Hero floating cards */
+    .hero-cards {
+      position: absolute; right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 420px;
+      display: none;
+    }
+    @media (min-width: 1100px) { .hero-cards { display: block; } }
+
+    .hcard {
+      position: absolute;
+      padding: 20px 24px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      animation: hcardFloat 6s ease-in-out infinite;
+    }
+    .hcard:nth-child(1) { top: -80px; right: 40px; animation-delay: 0s; }
+    .hcard:nth-child(2) { top: 80px; right: -20px; animation-delay: -2s; }
+    .hcard:nth-child(3) { top: 240px; right: 50px; animation-delay: -4s; }
+
+    @keyframes hcardFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+    .hcard-icon { font-size: 1.5rem; margin-bottom: 6px; }
+    .hcard-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+    .hcard-val { font-size: 1.4rem; font-weight: 800; color: var(--accent-2); font-family: var(--font-head); }
+
+    /* Scroll indicator */
+    .scroll-down {
+      position: absolute; bottom: 40px; left: 50%;
+      transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      font-size: 0.75rem; color: var(--txt-3);
+      letter-spacing: 0.1em; text-transform: uppercase;
+      animation: fadeUp 0.8s 1s both;
+    }
+    .scroll-dot {
+      width: 30px; height: 50px;
+      border: 2px solid var(--border);
+      border-radius: 15px;
+      position: relative;
+    }
+    .scroll-dot::after {
+      content: '';
+      position: absolute; left: 50%; top: 8px;
+      transform: translateX(-50%);
+      width: 4px; height: 8px;
+      background: var(--accent-1);
+      border-radius: 2px;
+      animation: scrollAnim 2s infinite;
+    }
+    @keyframes scrollAnim {
+      0%, 100% { top: 8px; opacity: 1; }
+      80% { top: 28px; opacity: 0; }
+    }
+
+    /* ============================================================
+       HOME — ABOUT STRIP
+    ============================================================ */
+    .about-strip {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .strip-inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px; align-items: center;
+    }
+    .strip-text .section-title { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .stat-box {
+      text-align: center; padding: 28px 16px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .stat-box:hover { border-color: var(--accent-1); transform: translateY(-4px); }
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 2.2rem; font-weight: 800;
+      line-height: 1;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .stat-label { font-size: 0.8rem; color: var(--txt-2); margin-top: 4px; }
+
+    /* ============================================================
+       SERVICES CARDS
+    ============================================================ */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .svc-card {
+      padding: 36px 28px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+      cursor: default;
+    }
+    .svc-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(124,92,252,0.08), transparent);
+      opacity: 0; transition: var(--transition);
+    }
+    .svc-card:hover { border-color: var(--border-hi); transform: translateY(-6px); }
+    .svc-card:hover::before { opacity: 1; }
+    .svc-card:hover .svc-glow { opacity: 1; }
+
+    .svc-glow {
+      position: absolute; top: -60px; right: -60px;
+      width: 150px; height: 150px;
+      background: var(--glow-1);
+      border-radius: 50%; filter: blur(50px);
+      opacity: 0; transition: var(--transition);
+    }
+    .svc-icon {
+      width: 52px; height: 52px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 14px;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .svc-icon-1 { background: rgba(124,92,252,0.15); color: var(--accent-1); }
+    .svc-icon-2 { background: rgba(79,195,247,0.15); color: var(--accent-2); }
+    .svc-icon-3 { background: rgba(240,111,255,0.15); color: var(--accent-3); }
+    .svc-icon-4 { background: rgba(255,183,77,0.15); color: #ffb74d; }
+
+    .svc-title {
+      font-family: var(--font-head);
+      font-size: 1.2rem; font-weight: 700;
+      margin-bottom: 10px;
+      position: relative; z-index: 1;
+    }
+    .svc-desc {
+      font-size: 0.9rem; color: var(--txt-2);
+      line-height: 1.65; margin-bottom: 20px;
+      position: relative; z-index: 1;
+    }
+    .svc-tags {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      position: relative; z-index: 1;
+    }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 99px;
+      font-size: 0.7rem; font-weight: 600;
+      border: 1px solid var(--border);
+      color: var(--txt-2);
+      background: rgba(255,255,255,0.03);
+      transition: var(--transition);
+    }
+    .svc-card:hover .tag { border-color: rgba(124,92,252,0.3); color: var(--txt-1); }
+
+    /* ============================================================
+       PROJECTS GRID
+    ============================================================ */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .proj-card {
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      transition: var(--transition);
+      position: relative;
+    }
+    .proj-card:hover { border-color: var(--border-hi); transform: translateY(-8px); }
+    .proj-card:hover .proj-img-wrap img { transform: scale(1.05); }
+    .proj-card:hover .proj-overlay { opacity: 1; }
+
+    .proj-img-wrap {
+      position: relative; overflow: hidden;
+      height: 200px;
+    }
+    .proj-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s ease; }
+    .proj-thumb {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3rem;
+    }
+
+    .proj-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(124,92,252,0.7), rgba(79,195,247,0.5));
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: var(--transition);
+      font-size: 2rem;
+    }
+
+    .proj-body { padding: 24px; }
+    .proj-title {
+      font-family: var(--font-head);
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;
+    }
+    .proj-desc { font-size: 0.875rem; color: var(--txt-2); margin-bottom: 16px; line-height: 1.6; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .proj-tag {
+      padding: 3px 10px;
+      border-radius: 99px;
+      font-size: 0.68rem; font-weight: 600;
+      background: rgba(124,92,252,0.12);
+      color: var(--accent-1);
+      border: 1px solid rgba(124,92,252,0.2);
+    }
+
+    /* ============================================================
+       TEAM CARDS
+    ============================================================ */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 24px; margin-top: 48px;
+    }
+    .team-card {
+      padding: 36px 24px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      text-align: center;
+      transition: var(--transition);
+      position: relative; overflow: hidden;
+      cursor: default;
+    }
+    .team-card::after {
+      content: '';
+      position: absolute; bottom: -60px; left: 50%;
+      transform: translateX(-50%);
+      width: 140px; height: 140px;
+      border-radius: 50%;
+      opacity: 0; transition: var(--transition);
+    }
+    .team-card:nth-child(1)::after { background: var(--glow-1); }
+    .team-card:nth-child(2)::after { background: var(--glow-2); }
+    .team-card:nth-child(3)::after { background: var(--glow-3); }
+    .team-card:nth-child(4)::after { background: rgba(255,183,77,0.4); }
+
+    .team-card:hover { border-color: var(--border-hi); transform: translateY(-8px); }
+    .team-card:hover::after { opacity: 0.6; }
+
+    .avatar {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-head);
+      font-size: 1.6rem; font-weight: 800;
+      color: #fff;
+      position: relative; z-index: 1;
+    }
+    .avatar-1 { background: linear-gradient(135deg, var(--accent-1), #5b3be8); }
+    .avatar-2 { background: linear-gradient(135deg, var(--accent-2), #0288d1); }
+    .avatar-3 { background: linear-gradient(135deg, var(--accent-3), #ab47bc); }
+    .avatar-4 { background: linear-gradient(135deg, #ffb74d, #f57c00); }
+
+    .team-name {
+      font-family: var(--font-head);
+      font-size: 1.1rem; font-weight: 700; margin-bottom: 4px;
+      position: relative; z-index: 1;
+    }
+    .team-role {
+      font-size: 0.82rem; color: var(--txt-2);
+      position: relative; z-index: 1;
+      margin-bottom: 16px;
+    }
+    .team-social {
+      display: flex; justify-content: center; gap: 10px;
+      position: relative; z-index: 1;
+    }
+    .team-social a {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .team-social a:hover { background: var(--accent-1); border-color: var(--accent-1); }
+
+    /* ============================================================
+       CONTACT
+    ============================================================ */
+    .contact-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 60px; align-items: start;
+      margin-top: 48px;
+    }
+    .contact-info-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 20px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+      transition: var(--transition);
+    }
+    .contact-info-item:hover { border-color: var(--accent-1); }
+    .ci-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+    }
+    .ci-icon-1 { background: rgba(124,92,252,0.15); }
+    .ci-icon-2 { background: rgba(79,195,247,0.15); }
+    .ci-icon-3 { background: rgba(240,111,255,0.15); }
+    .ci-label { font-size: 0.75rem; color: var(--txt-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; }
+    .ci-value { font-size: 0.95rem; font-weight: 500; margin-top: 2px; }
+
+    .contact-form {
+      padding: 40px;
+      border-radius: var(--radius-md);
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+    }
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 0.82rem; font-weight: 600;
+      color: var(--txt-2); margin-bottom: 8px;
+      text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .form-input, .form-textarea {
+      width: 100%; padding: 14px 18px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--txt-1);
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      transition: var(--transition);
+      outline: none;
+    }
+    .form-input:focus, .form-textarea:focus {
+      border-color: var(--accent-1);
+      background: rgba(124,92,252,0.06);
+      box-shadow: 0 0 0 3px rgba(124,92,252,0.12);
+    }
+    .form-input::placeholder, .form-textarea::placeholder { color: var(--txt-3); }
+    .form-textarea { resize: vertical; min-height: 140px; }
+
+    .form-status {
+      padding: 14px 18px; border-radius: var(--radius-sm);
+      font-size: 0.9rem; margin-top: 14px; display: none;
+    }
+    .form-status.success { background: rgba(76,175,80,0.1); border: 1px solid rgba(76,175,80,0.3); color: #81c784; }
+    .form-status.error { background: rgba(244,67,54,0.1); border: 1px solid rgba(244,67,54,0.3); color: #e57373; }
+
+    /* ============================================================
+       CTA SECTION
+    ============================================================ */
+    .cta-section {
+      text-align: center;
+      padding: 100px 0;
+      position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .cta-title {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 4.5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 16px;
+    }
+    .cta-sub {
+      color: var(--txt-2); font-size: 1.1rem;
+      margin-bottom: 36px; max-width: 500px; margin-left: auto; margin-right: auto;
+    }
+    .cta-btns { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      padding: 60px 0 32px;
+      border-top: 1px solid var(--border);
+      position: relative; z-index: 1;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 48px;
+    }
+    .footer-brand { }
+    .footer-logo {
+      font-family: var(--font-head);
+      font-size: 1.5rem; font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+    .footer-desc { font-size: 0.9rem; color: var(--txt-2); max-width: 280px; line-height: 1.7; }
+    .footer-social {
+      display: flex; gap: 10px; margin-top: 20px;
+    }
+    .footer-social a {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      background: var(--bg-glass);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+    }
+    .footer-social a:hover { background: var(--accent-1); border-color: var(--accent-1); }
+
+    .footer-col-title {
+      font-family: var(--font-head);
+      font-size: 0.85rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--txt-3); margin-bottom: 16px;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a { font-size: 0.9rem; color: var(--txt-2); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--txt-1); }
+
+    .footer-bottom {
+      padding-top: 28px;
+      border-top: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .footer-copy { font-size: 0.82rem; color: var(--txt-3); }
+    .footer-copy span { color: var(--accent-1); }
+
+    /* ============================================================
+       SERVICES PAGE HERO
+    ============================================================ */
+    .page-hero {
+      padding: 160px 0 80px;
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: '';
+      position: absolute; top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(124,92,252,0.1) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .services-full .svc-card { cursor: default; }
+    .svc-features { margin-top: 14px; }
+    .svc-feature {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.875rem; color: var(--txt-2); margin-bottom: 6px;
+    }
+    .svc-feature::before { content: '✦'; color: var(--accent-1); font-size: 0.65rem; }
+
+    /* ============================================================
+       SCROLL REVEAL
+    ============================================================ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.revealed { opacity: 1; transform: translateY(0); }
+
+    /* Stagger children */
+    .stagger-children > * {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .stagger-children.revealed > *:nth-child(1) { opacity:1; transform:translateY(0); transition-delay:0s; }
+    .stagger-children.revealed > *:nth-child(2) { opacity:1; transform:translateY(0); transition-delay:0.1s; }
+    .stagger-children.revealed > *:nth-child(3) { opacity:1; transform:translateY(0); transition-delay:0.2s; }
+    .stagger-children.revealed > *:nth-child(4) { opacity:1; transform:translateY(0); transition-delay:0.3s; }
+    .stagger-children.revealed > *:nth-child(5) { opacity:1; transform:translateY(0); transition-delay:0.4s; }
+    .stagger-children.revealed > *:nth-child(6) { opacity:1; transform:translateY(0); transition-delay:0.5s; }
+    .stagger-children.revealed > *:nth-child(7) { opacity:1; transform:translateY(0); transition-delay:0.6s; }
+    .stagger-children.revealed > *:nth-child(8) { opacity:1; transform:translateY(0); transition-delay:0.7s; }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ============================================================
+       DIVIDER
+    ============================================================ */
+    .divider {
+      height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 900px) {
+      .strip-inner { grid-template-columns: 1fr; }
+      .contact-layout { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .nav-toggle { display: flex; }
+      .hero-btns { flex-direction: column; align-items: flex-start; }
+      .footer-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+      .section { padding: 70px 0; }
+    }
+
+    /* ============================================================
+       PROJECT COLOR THUMBS
+    ============================================================ */
+    .thumb-1 { background: linear-gradient(135deg, #1a1040, #3d1f8f); }
+    .thumb-2 { background: linear-gradient(135deg, #0d2620, #1a6f3c); }
+    .thumb-3 { background: linear-gradient(135deg, #1a0d2e, #6d28d9); }
+    .thumb-4 { background: linear-gradient(135deg, #0d1a2e, #0288d1); }
+    .thumb-5 { background: linear-gradient(135deg, #2e0d0d, #c62828); }
+    .thumb-6 { background: linear-gradient(135deg, #1a1a0d, #f57f17); }
+    .thumb-7 { background: linear-gradient(135deg, #0d1a1a, #00838f); }
+    .thumb-8 { background: linear-gradient(135deg, #1a0d1a, #ad1457); }
+
+    /* Active nav state */
+    .nav-links a[data-page].active {
+      color: var(--txt-1); background: rgba(124,92,252,0.12);
+    }
+  </style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOADING SCREEN
+============================================================ -->
+<div id="loader">
+  <div class="loader-logo">PixelStack</div>
+  <div class="loader-bar-wrap">
+    <div class="loader-bar"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NAVBAR
+============================================================ -->
+<nav id="navbar">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo" onclick="showPage('home')">PixelStack</a>
+      <ul class="nav-links">
+        <li><a href="#" data-page="home" class="active" onclick="showPage('home');return false;">Home</a></li>
+        <li><a href="#" data-page="services" onclick="showPage('services');return false;">Services</a></li>
+        <li><a href="#" data-page="projects" onclick="showPage('projects');return false;">Projects</a></li>
+        <li><a href="#" data-page="team" onclick="showPage('team');return false;">Team</a></li>
+        <li><a href="#" data-page="contact" class="btn btn-primary nav-cta" onclick="showPage('contact');return false;">Contact Us</a></li>
+      </ul>
+      <div class="nav-toggle" id="navToggle" onclick="toggleMobile()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="showPage('home');toggleMobile();return false;">Home</a>
+  <a href="#" onclick="showPage('services');toggleMobile();return false;">Services</a>
+  <a href="#" onclick="showPage('projects');toggleMobile();return false;">Projects</a>
+  <a href="#" onclick="showPage('team');toggleMobile();return false;">Team</a>
+  <a href="#" onclick="showPage('contact');toggleMobile();return false;">Contact</a>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+============================================================ -->
+<div id="page-home" class="page active">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+      <div class="hero-grid"></div>
+    </div>
+    <div class="container hero-content">
+      <div class="hero-badge">🚀 Building Digital Futures</div>
+      <h1 class="hero-title">
+        Modern Web Design<br>
+        &amp; <span class="grad-text">Scalable</span><br>
+        Applications
+      </h1>
+      <p class="hero-sub">PixelStack Technologies builds high-performance websites, scalable web applications, and secure digital platforms for startups and enterprises.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="showPage('contact')">Get Started →</button>
+        <button class="btn btn-ghost" onclick="showPage('projects')">View Projects</button>
+      </div>
+    </div>
+    <div class="hero-cards">
+      <div class="hcard glass">
+        <div class="hcard-icon">🚀</div>
+        <div class="hcard-title">Projects Delivered</div>
+        <div class="hcard-val">50+</div>
+      </div>
+      <div class="hcard glass">
+        <div class="hcard-icon">⚡</div>
+        <div class="hcard-title">Performance Score</div>
+        <div class="hcard-val">98/100</div>
+      </div>
+      <div class="hcard glass">
+        <div class="hcard-icon">😊</div>
+        <div class="hcard-title">Happy Clients</div>
+        <div class="hcard-val">40+</div>
+      </div>
+    </div>
+    <div class="scroll-down">
+      <div class="scroll-dot"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ABOUT STRIP -->
+  <section class="about-strip">
+    <div class="container">
+      <div class="strip-inner">
+        <div class="strip-text reveal">
+          <div class="section-label">About Us</div>
+          <h2 class="section-title">Crafting digital excellence since day one</h2>
+          <p class="section-sub">We specialize in React apps, admin dashboards, and modern UI/UX solutions that help businesses grow online. Our team combines deep technical expertise with creative vision to build products that stand out.</p>
+          <br/>
+          <button class="btn btn-ghost" onclick="showPage('team')" style="margin-top:8px">Meet the Team →</button>
+        </div>
+        <div class="stats-row stagger-children">
+          <div class="stat-box">
+            <div class="stat-num">50+</div>
+            <div class="stat-label">Projects Done</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">40+</div>
+            <div class="stat-label">Happy Clients</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-num">4</div>
+            <div class="stat-label">Expert Members</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- SERVICES PREVIEW -->
+  <section class="section">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">What We Do</div>
+        <h2 class="section-title">Services built for <span class="grad-text">growth</span></h2>
+        <p class="section-sub">End-to-end digital solutions designed to scale with your business and deliver measurable results.</p>
+      </div>
+      <div class="services-grid stagger-children">
+        <div class="svc-card">
+          <div class="svc-glow"></div>
+          <div class="svc-icon svc-icon-1">🎨</div>
+          <div class="svc-title">Web Design</div>
+          <div class="svc-desc">Stunning, mobile-first designs that convert visitors into customers through great UX.</div>
+          <div class="svc-tags">
+            <span class="tag">Mobile Friendly</span>
+            <span class="tag">UI/UX</span>
+            <span class="tag">Branding</span>
+          </div>
+        </div>
+        <div class="svc-card">
+          <div class="svc-glow" style="background:var(--glow-2)"></div>
+          <div class="svc-icon svc-icon-2">💻</div>
+          <div class="svc-title">Website Development</div>
+          <div class="svc-desc">High-performance, SEO-optimized websites built with modern web technologies.</div>
+          <div class="svc-tags">
+            <span class="tag">HTML/CSS/JS</span>
+            <span class="tag">SEO</span>
+            <span class="tag">Fast</span>
+          </div>
+        </div>
+        <div class="svc-card">
+          <div class="svc-glow" style="background:var(--glow-3)"></div>
+          <div class="svc-icon svc-icon-3">⚛️</div>
+          <div class="svc-title">React Applications</div>
+          <div class="svc-desc">Scalable single-page applications with seamless API integrations and blazing speed.</div>
+          <div class="svc-tags">
+            <span class="tag">SPA</span>
+            <span class="tag">API</span>
+            <span class="tag">React</span>
+          </div>
+        </div>
+        <div class="svc-card">
+          <div class="svc-glow" style="background:rgba(255,183,77,0.4)"></div>
+          <div class="svc-icon svc-icon-4">📊</div>
+          <div class="svc-title">Admin Dashboards</div>
+          <div class="svc-desc">Feature-rich dashboards with analytics, reports, and complete user management.</div>
+          <div class="svc-tags">
+            <span class="tag">Analytics</span>
+            <span class="tag">Reports</span>
+            <span class="tag">Admin</span>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <button class="btn btn-ghost" onclick="showPage('services')">Explore All Services →</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PROJECTS PREVIEW -->
+  <section class="section">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Our Work</div>
+        <h2 class="section-title">Featured <span class="grad-text">projects</span></h2>
+        <p class="section-sub">A selection of our best work — from e-commerce platforms to React applications.</p>
+      </div>
+      <div class="projects-grid stagger-children">
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-1">🎓</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">College Website</div>
+            <div class="proj-desc">A modern institutional website with admissions, courses, and campus info pages.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">React</span><span class="proj-tag">Vite</span>
+            </div>
+          </div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-2">🌾</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Bharatagro E-commerce</div>
+            <div class="proj-desc">Full-stack agricultural e-commerce platform with secure checkout and inventory management.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">PHP</span><span class="proj-tag">MySQL</span><span class="proj-tag">JS</span>
+            </div>
+          </div>
+        </div>
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-4">🌤</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Weather App</div>
+            <div class="proj-desc">Real-time weather forecasting app with location search and 7-day outlook.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">API</span><span class="proj-tag">JavaScript</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <button class="btn btn-primary" onclick="showPage('projects')">View All Projects →</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TEAM PREVIEW -->
+  <section class="section">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">The Team</div>
+        <h2 class="section-title">The <span class="grad-text">minds</span> behind PixelStack</h2>
+      </div>
+      <div class="team-grid stagger-children" style="margin-top:48px">
+        <div class="team-card">
+          <div class="avatar avatar-1">ST</div>
+          <div class="team-name">Sujal Thorat</div>
+          <div class="team-role">Founder & Lead Developer</div>
+        </div>
+        <div class="team-card">
+          <div class="avatar avatar-2">SS</div>
+          <div class="team-name">Shrutika Savant</div>
+          <div class="team-role">Project Manager & Developer</div>
+        </div>
+        <div class="team-card">
+          <div class="avatar avatar-3">HP</div>
+          <div class="team-name">Harshvardhan Patil</div>
+          <div class="team-role">UI/UX Designer & Developer</div>
+        </div>
+        <div class="team-card">
+          <div class="avatar avatar-4">AC</div>
+          <div class="team-name">Abhijeet Chougule</div>
+          <div class="team-role">Marketing & Designer</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:36px">
+        <button class="btn btn-ghost" onclick="showPage('team')">Meet the Full Team →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label" style="justify-content:center">Let's Work Together</div>
+        <h2 class="cta-title">Let's build something <span class="grad-text">amazing</span> together</h2>
+        <p class="cta-sub">Ready to transform your idea into reality? Our team is here to help you create something extraordinary.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary" onclick="showPage('contact')">Start a Project →</button>
+          <button class="btn btn-ghost" onclick="showPage('services')">Our Services</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /home -->
+
+<!-- ============================================================
+     SERVICES PAGE
+============================================================ -->
+<div id="page-services" class="page">
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">What We Offer</div>
+        <h1 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">
+          Services that <span class="grad-text">elevate</span><br>your business
+        </h1>
+        <p class="section-sub">From pixel-perfect designs to scalable backend systems — we do it all with precision and passion.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container services-full">
+      <div class="services-grid stagger-children">
+
+        <!-- Web Design -->
+        <div class="svc-card">
+          <div class="svc-glow"></div>
+          <div class="svc-icon svc-icon-1">🎨</div>
+          <div class="svc-title">Web Design</div>
+          <div class="svc-desc">We craft visually stunning, user-centric designs that leave a lasting impression and drive conversions.</div>
+          <div class="svc-features">
+            <div class="svc-feature">Mobile Friendly &amp; Responsive</div>
+            <div class="svc-feature">UI/UX Research &amp; Design</div>
+            <div class="svc-feature">Brand Identity &amp; Visual Systems</div>
+          </div>
+          <div class="svc-tags" style="margin-top:20px">
+            <span class="tag">Figma</span>
+            <span class="tag">Branding</span>
+            <span class="tag">UI/UX</span>
+          </div>
+        </div>
+
+        <!-- Web Dev -->
+        <div class="svc-card">
+          <div class="svc-glow" style="background:var(--glow-2)"></div>
+          <div class="svc-icon svc-icon-2">💻</div>
+          <div class="svc-title">Website Development</div>
+          <div class="svc-desc">Fast, secure, SEO-optimized websites built with clean code and best practices that perform exceptionally.</div>
+          <div class="svc-features">
+            <div class="svc-feature">HTML, CSS, JavaScript</div>
+            <div class="svc-feature">SEO Optimized Architecture</div>
+            <div class="svc-feature">High Performance &amp; Accessibility</div>
+          </div>
+          <div class="svc-tags" style="margin-top:20px">
+            <span class="tag">HTML/CSS</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">SEO</span>
+          </div>
+        </div>
+
+        <!-- React -->
+        <div class="svc-card">
+          <div class="svc-glow" style="background:var(--glow-3)"></div>
+          <div class="svc-icon svc-icon-3">⚛️</div>
+          <div class="svc-title">React Applications</div>
+          <div class="svc-desc">Modern single-page applications with seamless user experiences, fast rendering, and robust API integrations.</div>
+          <div class="svc-features">
+            <div class="svc-feature">SPA Development with React/Vite</div>
+            <div class="svc-feature">REST &amp; GraphQL API Integration</div>
+            <div class="svc-feature">Fast Rendering &amp; Code Splitting</div>
+          </div>
+          <div class="svc-tags" style="margin-top:20px">
+            <span class="tag">React</span>
+            <span class="tag">Vite</span>
+            <span class="tag">API</span>
+          </div>
+        </div>
+
+        <!-- Dashboards -->
+        <div class="svc-card">
+          <div class="svc-glow" style="background:rgba(255,183,77,0.4)"></div>
+          <div class="svc-icon svc-icon-4">📊</div>
+          <div class="svc-title">Admin Dashboards</div>
+          <div class="svc-desc">Comprehensive management systems with rich analytics, custom reports, and complete user administration.</div>
+          <div class="svc-features">
+            <div class="svc-feature">Real-time Analytics &amp; Charts</div>
+            <div class="svc-feature">Custom Reports &amp; Exports</div>
+            <div class="svc-feature">Role-based User Management</div>
+          </div>
+          <div class="svc-tags" style="margin-top:20px">
+            <span class="tag">Analytics</span>
+            <span class="tag">Charts</span>
+            <span class="tag">CMS</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Process section -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="reveal" style="text-align:center;margin-bottom:48px">
+        <div class="section-label" style="justify-content:center">How We Work</div>
+        <h2 class="section-title" style="text-align:center">Our <span class="grad-text">process</span></h2>
+      </div>
+      <div class="services-grid stagger-children" style="grid-template-columns:repeat(auto-fill,minmax(220px,1fr))">
+        <div class="svc-card" style="text-align:center;padding:32px 24px">
+          <div style="font-size:2rem;margin-bottom:12px">💡</div>
+          <div style="font-family:var(--font-head);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-1);margin-bottom:8px">01</div>
+          <div class="svc-title">Discovery</div>
+          <div class="svc-desc">We understand your goals, audience, and requirements thoroughly before any work begins.</div>
+        </div>
+        <div class="svc-card" style="text-align:center;padding:32px 24px">
+          <div style="font-size:2rem;margin-bottom:12px">✏️</div>
+          <div style="font-family:var(--font-head);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-2);margin-bottom:8px">02</div>
+          <div class="svc-title">Design</div>
+          <div class="svc-desc">We create wireframes and high-fidelity prototypes with your brand identity in mind.</div>
+        </div>
+        <div class="svc-card" style="text-align:center;padding:32px 24px">
+          <div style="font-size:2rem;margin-bottom:12px">⚙️</div>
+          <div style="font-family:var(--font-head);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--accent-3);margin-bottom:8px">03</div>
+          <div class="svc-title">Develop</div>
+          <div class="svc-desc">Clean, scalable code built with modern technologies and best practices throughout.</div>
+        </div>
+        <div class="svc-card" style="text-align:center;padding:32px 24px">
+          <div style="font-size:2rem;margin-bottom:12px">🚀</div>
+          <div style="font-family:var(--font-head);font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:#ffb74d;margin-bottom:8px">04</div>
+          <div class="svc-title">Launch</div>
+          <div class="svc-desc">We deploy, test, and monitor your product, providing ongoing support after launch.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="cta-title">Ready to get <span class="grad-text">started?</span></h2>
+        <p class="cta-sub">Let's discuss your project and find the best solution for your business needs.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary" onclick="showPage('contact')">Get a Free Quote →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /services -->
+
+<!-- ============================================================
+     PROJECTS PAGE
+============================================================ -->
+<div id="page-projects" class="page">
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Our Portfolio</div>
+        <h1 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">
+          Work we're <span class="grad-text">proud</span> of
+        </h1>
+        <p class="section-sub">Every project tells a story. Here's a collection of our best work across different domains and technologies.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="projects-grid stagger-children">
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-1">🎓</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">College Website</div>
+            <div class="proj-desc">Full-featured institutional website including admissions, course listing, faculty profiles, and campus news. Built with React + Vite for blazing speed.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">React</span>
+              <span class="proj-tag">Vite</span>
+              <span class="proj-tag">CSS3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-2">🌾</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Bharatagro E-commerce</div>
+            <div class="proj-desc">Agricultural e-commerce platform with product catalog, cart, secure checkout, and admin panel for inventory management.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">HTML</span>
+              <span class="proj-tag">CSS</span>
+              <span class="proj-tag">JS</span>
+              <span class="proj-tag">PHP</span>
+              <span class="proj-tag">MySQL</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-3">👨‍💻</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Portfolio Website</div>
+            <div class="proj-desc">A stunning personal portfolio showcasing skills, projects, and contact information with smooth scroll animations.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">HTML</span>
+              <span class="proj-tag">CSS</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-4">🌤</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Weather App</div>
+            <div class="proj-desc">Real-time weather forecasting app with city search, current conditions, and a 7-day forecast using OpenWeatherMap API.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">JavaScript</span>
+              <span class="proj-tag">REST API</span>
+              <span class="proj-tag">CSS3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-5">✅</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">To-Do List App</div>
+            <div class="proj-desc">Productivity app with add/edit/delete tasks, priority levels, and persistent local storage — no backend required.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">JavaScript</span>
+              <span class="proj-tag">LocalStorage</span>
+              <span class="proj-tag">CSS3</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-6">🧮</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Calculator App</div>
+            <div class="proj-desc">Clean, fully functional calculator with standard and scientific modes, keyboard support, and smooth animations.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">HTML</span>
+              <span class="proj-tag">CSS</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-7">🔐</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Login & Signup System</div>
+            <div class="proj-desc">Secure authentication system with registration, login, password hashing, session management, and email verification.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">PHP</span>
+              <span class="proj-tag">MySQL</span>
+              <span class="proj-tag">JS</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="proj-card">
+          <div class="proj-img-wrap">
+            <div class="proj-thumb thumb-8">📱</div>
+            <div class="proj-overlay">👁</div>
+          </div>
+          <div class="proj-body">
+            <div class="proj-title">Responsive Landing Page</div>
+            <div class="proj-desc">A conversion-optimized landing page with hero, features, testimonials, and contact sections — pixel-perfect on all devices.</div>
+            <div class="proj-tags">
+              <span class="proj-tag">HTML</span>
+              <span class="proj-tag">CSS</span>
+              <span class="proj-tag">JavaScript</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="cta-title">Have a project in <span class="grad-text">mind?</span></h2>
+        <p class="cta-sub">We'd love to add yours to our portfolio. Let's talk about bringing your vision to life.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary" onclick="showPage('contact')">Start Your Project →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /projects -->
+
+<!-- ============================================================
+     TEAM PAGE
+============================================================ -->
+<div id="page-team" class="page">
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Our People</div>
+        <h1 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">
+          Meet the <span class="grad-text">team</span>
+        </h1>
+        <p class="section-sub">A passionate group of designers, developers, and strategists working together to build exceptional digital products.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="team-grid stagger-children">
+
+        <div class="team-card">
+          <div class="avatar avatar-1">ST</div>
+          <div class="team-name">Sujal Thorat</div>
+          <div class="team-role">Founder & Lead Developer</div>
+          <p style="font-size:0.85rem;color:var(--txt-2);line-height:1.6;margin-bottom:16px;position:relative;z-index:1">
+            Visionary founder with deep expertise in full-stack development. Passionate about building scalable, high-performance web applications that make a real impact.
+          </p>
+          <div class="svc-tags" style="justify-content:center">
+            <span class="tag">React</span><span class="tag">Node.js</span><span class="tag">PHP</span>
+          </div>
+          <div class="team-social" style="margin-top:16px">
+            <a href="#" title="GitHub">⌥</a>
+            <a href="https://www.instagram.com/mr._sujal_31?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" title="Instagram">📸</a>
+            <a href="#" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+        <div class="team-card">
+          <div class="avatar avatar-2">SS</div>
+          <div class="team-name">Shrutika Savant</div>
+          <div class="team-role">Project Manager & Developer</div>
+          <p style="font-size:0.85rem;color:var(--txt-2);line-height:1.6;margin-bottom:16px;position:relative;z-index:1">
+            Keeps projects on track and teams aligned. A skilled developer who bridges the gap between business requirements and technical execution with precision.
+          </p>
+          <div class="svc-tags" style="justify-content:center">
+            <span class="tag">Agile</span><span class="tag">JavaScript</span><span class="tag">React</span>
+          </div>
+          <div class="team-social" style="margin-top:16px">
+            <a href="#" title="GitHub">⌥</a>
+            <a href="https://www.instagram.com/shrutika___1106?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" title="Instagram">📸</a>
+            <a href="#" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+        <div class="team-card">
+          <div class="avatar avatar-3">HP</div>
+          <div class="team-name">Harshvardhan Patil</div>
+          <div class="team-role">UI/UX Designer & Developer</div>
+          <p style="font-size:0.85rem;color:var(--txt-2);line-height:1.6;margin-bottom:16px;position:relative;z-index:1">
+            Creates intuitive, beautiful interfaces that users love. Combines design thinking with front-end development skills to deliver polished, pixel-perfect results.
+          </p>
+          <div class="svc-tags" style="justify-content:center">
+            <span class="tag">Figma</span><span class="tag">CSS</span><span class="tag">UX</span>
+          </div>
+          <div class="team-social" style="margin-top:16px">
+            <a href="#" title="GitHub">⌥</a>
+            <a href="https://www.instagram.com/iits_me__harry?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" title="Instagram">📸</a>
+            <a href="#" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+        <div class="team-card">
+          <div class="avatar avatar-4">AC</div>
+          <div class="team-name">Abhijeet Chougule</div>
+          <div class="team-role">Marketing & Designer</div>
+          <p style="font-size:0.85rem;color:var(--txt-2);line-height:1.6;margin-bottom:16px;position:relative;z-index:1">
+            Crafts compelling brand stories and visual identities that resonate with audiences. Drives growth through strategic digital marketing and creative design.
+          </p>
+          <div class="svc-tags" style="justify-content:center">
+            <span class="tag">Branding</span><span class="tag">SEO</span><span class="tag">Design</span>
+          </div>
+          <div class="team-social" style="margin-top:16px">
+            <a href="#" title="GitHub">⌥</a>
+            <a href="https://www.instagram.com/abhijeet__0503?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" title="Instagram">📸</a>
+            <a href="#" title="LinkedIn">in</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Values section -->
+  <section class="section">
+    <div class="container">
+      <div class="reveal" style="text-align:center;margin-bottom:48px">
+        <div class="section-label" style="justify-content:center">Our DNA</div>
+        <h2 class="section-title" style="text-align:center">What drives <span class="grad-text">us</span></h2>
+      </div>
+      <div class="services-grid stagger-children" style="grid-template-columns:repeat(auto-fill,minmax(240px,1fr))">
+        <div class="svc-card" style="text-align:center">
+          <div style="font-size:2.2rem;margin-bottom:12px">🎯</div>
+          <div class="svc-title">Precision</div>
+          <div class="svc-desc">Every pixel matters. We obsess over the details that make the difference between good and exceptional.</div>
+        </div>
+        <div class="svc-card" style="text-align:center">
+          <div style="font-size:2.2rem;margin-bottom:12px">⚡</div>
+          <div class="svc-title">Speed</div>
+          <div class="svc-desc">We move fast without breaking things. Agile workflows and clear communication keep projects on schedule.</div>
+        </div>
+        <div class="svc-card" style="text-align:center">
+          <div style="font-size:2.2rem;margin-bottom:12px">🤝</div>
+          <div class="svc-title">Partnership</div>
+          <div class="svc-desc">We treat your project as our own. Long-term relationships built on trust, transparency, and results.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="reveal">
+        <h2 class="cta-title">Join our <span class="grad-text">journey</span></h2>
+        <p class="cta-sub">We're always looking for talented individuals who share our passion for exceptional digital experiences.</p>
+        <div class="cta-btns">
+          <button class="btn btn-primary" onclick="showPage('contact')">Get in Touch →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /team -->
+
+<!-- ============================================================
+     CONTACT PAGE
+============================================================ -->
+<div id="page-contact" class="page">
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="reveal">
+        <div class="section-label">Contact Us</div>
+        <h1 class="section-title" style="font-size:clamp(2.5rem,5vw,4rem)">
+          Let's <span class="grad-text">connect</span>
+        </h1>
+        <p class="section-sub">Interested in working together? We'd love to hear from you! Send us a message and we'll get back to you shortly.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="contact-layout">
+
+        <!-- Info -->
+        <div class="reveal">
+          <h3 style="font-family:var(--font-head);font-size:1.5rem;font-weight:700;margin-bottom:24px">Get in touch</h3>
+
+          <div class="contact-info-item">
+            <div class="ci-icon ci-icon-1">💬</div>
+            <div>
+              <div class="ci-label">WhatsApp</div>
+              <div class="ci-value">+91 72491 18605</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="ci-icon ci-icon-2">📧</div>
+            <div>
+              <div class="ci-label">Email</div>
+              <div class="ci-value">pixelstacktechnologies@gmail.com</div>
+            </div>
+          </div>
+          <div class="contact-info-item">
+            <div class="ci-icon ci-icon-3">📍</div>
+            <div>
+              <div class="ci-label">Location</div>
+              <div class="ci-value">Kolhapur, Maharashtra, India</div>
+            </div>
+          </div>
+
+          <div style="margin-top:28px">
+            <p style="font-size:0.85rem;color:var(--txt-3);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.1em;font-weight:600">Follow Us</p>
+            <div style="display:flex;gap:12px">
+              <a href="https://www.instagram.com/pixelstacktechnologies?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;background:var(--bg-glass);border:1px solid var(--border);font-size:0.85rem;color:var(--txt-2);transition:var(--transition)" onmouseover="this.style.borderColor='var(--accent-1)';this.style.color='var(--txt-1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt-2)'">
+                📱 Instagram
+              </a>
+              <a href="https://wa.me/917249118605" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;background:var(--bg-glass);border:1px solid var(--border);font-size:0.85rem;color:var(--txt-2);transition:var(--transition)" onmouseover="this.style.borderColor='var(--accent-1)';this.style.color='var(--txt-1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt-2)'">
+                💬 WhatsApp
+              </a>
+              <a href="mailto:pixelstacktechnologies@gmail.com" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:99px;background:var(--bg-glass);border:1px solid var(--border);font-size:0.85rem;color:var(--txt-2);transition:var(--transition)" onmouseover="this.style.borderColor='var(--accent-1)';this.style.color='var(--txt-1)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--txt-2)'">
+                📧 Email
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <div class="contact-form reveal">
+          <h3 style="font-family:var(--font-head);font-size:1.3rem;font-weight:700;margin-bottom:24px">Send a Message</h3>
+          <div class="form-group">
+            <label>Your Name</label>
+            <input type="text" id="fname" class="form-input" placeholder="Full Name" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="femail" class="form-input" placeholder="hello@example.com" />
+          </div>
+          <div class="form-group">
+            <label>Subject</label>
+            <input type="text" id="fsubject" class="form-input" placeholder="Project Inquiry" />
+          </div>
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="fmessage" class="form-textarea" placeholder="Tell us about your project..."></textarea>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="submitForm()">
+            Send Message ✉️
+          </button>
+          <div id="formStatus" class="form-status"></div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</div><!-- /contact -->
+
+<!-- ============================================================
+     FOOTER (shared)
+============================================================ -->
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">PixelStack</div>
+        <p class="footer-desc">We build modern, secure, and scalable digital solutions to help businesses grow online.</p>
+        <div class="footer-social">
+          <a href="https://www.instagram.com/pixelstacktechnologies?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" title="Instagram">📸</a>
+          <a href="https://wa.me/917249118605" title="WhatsApp">💬</a>
+          <a href="mailto:pixelstacktechnologies@gmail.com" title="Email">📧</a>
+          <a href="https://github.com/sujalthorat" title="GitHub">⌥</a>
+          <a href="https://www.linkedin.com/in/sujal-thorat-9a8608401" title="LinkedIn">in</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Quick Links</div>
+        <div class="footer-links">
+          <a href="#" onclick="showPage('home');return false;">Home</a>
+          <a href="#" onclick="showPage('services');return false;">Services</a>
+          <a href="#" onclick="showPage('projects');return false;">Projects</a>
+          <a href="#" onclick="showPage('team');return false;">Team</a>
+          <a href="#" onclick="showPage('contact');return false;">Contact</a>
+        </div>
+      </div>
+      <div>
+        <div class="footer-col-title">Services</div>
+        <div class="footer-links">
+          <a href="#" onclick="showPage('services');return false;">Web Design</a>
+          <a href="#" onclick="showPage('services');return false;">Development</a>
+          <a href="#" onclick="showPage('services');return false;">React Apps</a>
+          <a href="#" onclick="showPage('services');return false;">Dashboards</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-copy">© 2025 <span>PixelStack Technologies</span> | All Rights Reserved</p>
+      <p class="footer-copy" style="display:flex;align-items:center;gap:6px">
+        Built with <span style="color:#e84545">♥</span> in India
+      </p>
+    </div>
+  </div>
+</footer>
+
+<!-- EmailJS Library (MUST ADD) -->
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+<script>
+/* ---------- LOADER ---------- */
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    document.getElementById('loader')?.classList.add('hidden');
+    initReveal();
+  }, 1800);
+});
+
+/* ---------- NAVBAR SCROLL ---------- */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  if (navbar) {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  }
+});
+
+/* ---------- MOBILE MENU ---------- */
+function toggleMobile() {
+  const toggle = document.getElementById('navToggle');
+  const menu = document.getElementById('mobileMenu');
+  toggle?.classList.toggle('open');
+  menu?.classList.toggle('open');
+}
+
+/* ---------- PAGE NAVIGATION ---------- */
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const target = document.getElementById('page-' + pageId);
+  if (target) target.classList.add('active');
+
+  document.querySelectorAll('.nav-links a[data-page]').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === pageId);
+  });
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  setTimeout(() => {
+    document.querySelectorAll('#page-' + pageId + ' .reveal, #page-' + pageId + ' .stagger-children')
+      .forEach(el => el.classList.remove('revealed'));
+    setTimeout(initReveal, 100);
+  }, 100);
+}
+
+/* ---------- SCROLL REVEAL ---------- */
+function initReveal() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal, .stagger-children').forEach(el => {
+    if (!el.classList.contains('revealed')) {
+      observer.observe(el);
+    }
+  });
+}
+
+/* ---------- EMAILJS INIT ---------- */
+(function () {
+  emailjs.init("ppqReMQIq2eH5heQy"); // ✅ your public key
+})();
+
+/* ---------- CONTACT FORM ---------- */
+function submitForm() {
+  const name = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const subject = document.getElementById('fsubject').value.trim();
+  const message = document.getElementById('fmessage').value.trim();
+  const status = document.getElementById('formStatus');
+
+  status.style.display = 'block';
+  status.className = 'form-status';
+
+  // Validation
+  if (!name || !email || !message) {
+    status.textContent = '⚠️ Please fill all required fields';
+    status.classList.add('error');
+    return;
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    status.textContent = '⚠️ Invalid email address';
+    status.classList.add('error');
+    return;
+  }
+
+  // Sending state
+  status.textContent = '⏳ Sending...';
+
+  // Send Email
+  emailjs.send("service_bfou12n", "template_3xg2b0p", {
+    from_name: name,
+    from_email: email,
+    subject: subject,
+    message: message
+  })
+  .then(() => {
+    status.textContent = '✅ Message sent successfully!';
+    status.classList.add('success');
+
+    // Clear form
+    document.getElementById('fname').value = '';
+    document.getElementById('femail').value = '';
+    document.getElementById('fsubject').value = '';
+    document.getElementById('fmessage').value = '';
+  })
+  .catch((error) => {
+    console.error(error);
+    status.textContent = '❌ Failed to send. Try again.';
+    status.classList.add('error');
+  });
+}
+
+/* ---------- CURSOR GLOW ---------- */
+if (window.matchMedia('(pointer:fine)').matches) {
+  const glow = document.createElement('div');
+  glow.style.cssText = `
+    position:fixed;width:500px;height:500px;border-radius:50%;
+    background:radial-gradient(circle,rgba(124,92,252,0.06) 0%,transparent 70%);
+    pointer-events:none;z-index:0;transform:translate(-50%,-50%);
+    transition:left 0.6s ease,top 0.6s ease;
+  `;
+  document.body.appendChild(glow);
+
+  document.addEventListener('mousemove', e => {
+    glow.style.left = e.clientX + 'px';
+    glow.style.top = e.clientY + 'px';
+  });
+}
+
+/* ---------- INIT ---------- */
+document.addEventListener('DOMContentLoaded', initReveal);
+</script>
+
+</body>
+</html>
